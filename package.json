@@ -1,7 +1,12 @@
 {
+<<<<<<< HEAD
   "name": "secretfans",
   "packageManager": "yarn@4.0.2",
   "version": "0.0.1",
+=======
+  "name": "world-id-cloud-template",
+  "version": "0.1.1",
+>>>>>>> feat: improvements and IDKit version bump
   "private": true,
   "workspaces": {
     "packages": [
