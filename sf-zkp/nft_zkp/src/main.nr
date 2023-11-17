@@ -1,23 +1,25 @@
-//fn hash()
-//{
-//    let eceks: [Field; 3] = [1, 2, 3];
-//    let message_size = 4;
-//    let hash = std::hash::keccak256(eceks, message_size);
-//}
 
-struct NFTsubs // struct for subscribers that have downloaded an NFT have their respective public key and ECEK
-{
-    ecek: Field;
-    pubKey: Field;
-}
+//struct NFTsubs // struct for subscribers that have downloaded an NFT have their respective public key and ECEK
+//{
+//    ecek: Field;
+//    pubKey: Field;
+//}
 
 fn main(cek: Field, eceks: [Field, 3], pubKeys: [Field, 3], pub ecekHash: Field, pub merkleRoot: Field) 
 {
-    // assert(x != y);
-    for i in 0..3
+
+    let nonce = 11561;
+    let iv = [nonce, 432,324,14];
+    let ciphers = hydra::bn254::enc::encrypt(pubKeys, cek, iv);
+
+    let message_size = 10;
+    let thisEcekHash = std::hash::keccak256(eceks, message_size);
+    let thisMerkleRoot = std::hash::keccak256(pubKeys, message_size);
+
+    if merkleRoot == thisMerkleRoot
     {
-        
-    };
+        assert (ecekHash == thisEcekHash);
+    }
 }
 
 #[test]
