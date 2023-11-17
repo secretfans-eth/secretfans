@@ -1,0 +1,8 @@
+[package]
+name = "nft_zkp"
+type = "bin"
+authors = [""]
+compiler_version = ">=0.19.2"
+
+[dependencies]
+hydra = { tag = "v0.3.0", git = "https://github.com/TaceoLabs/noir-hydra" }
