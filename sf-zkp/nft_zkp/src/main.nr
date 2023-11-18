@@ -7,7 +7,7 @@
 
 use dep::griffin;
 
-fn encrypt_griff(plains: [Field; 3]) -> pub Field {
+fn encrypt_griff(plains: [Field; 3]) -> Field {
     griffin::bn254::hash_3(plains)
 }
 
