@@ -1,8 +1,8 @@
 [package]
 name = "nft_zkp"
 type = "bin"
-authors = [""]
+authors = ["secretfans"]
 compiler_version = ">=0.19.2"
 
 [dependencies]
-griffin = { tag = "v0.3.0", git = "https://github.com/TaceoLabs/noir-griffin" }
+aes = { tag = "v0.3.0", git = "https://github.com/TaceoLabs/noir-aes" }
