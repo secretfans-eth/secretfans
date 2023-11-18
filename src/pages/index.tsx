@@ -5,7 +5,7 @@ import type { VerifyReply } from "./api/verify";
 export default function Home() {
 	const onSuccess = (result: ISuccessResult) => {
 		// This is where you should perform frontend actions once a user has been verified, such as redirecting to a new page
-		window.alert("Successfully verified with World ID! Your nullifier hash is: " + result.nullifier_hash);
+		window.alert("You have successfully verified that you're not a bot! Your nullifier hash is: " + result.nullifier_hash);
 	};
 
 	const handleProof = async (result: ISuccessResult) => {
@@ -37,7 +37,7 @@ export default function Home() {
 	return (
 		<div>
 			<div className="flex flex-col items-center justify-center align-middle h-screen">
-				<p className="text-2xl mb-5">World ID Cloud Template</p>
+				<p className="text-2xl mb-5">Verify you're not a bot with WorldID</p>
 				<IDKitWidget
 					action={process.env.NEXT_PUBLIC_WLD_ACTION_NAME!}
 					app_id={process.env.NEXT_PUBLIC_WLD_APP_ID!}
