@@ -38,7 +38,7 @@ fn main(cek: Field, eceks: [Field; 3], pubKeys: pub [Field; 3], merkleLeaves: [F
 
 #[test]
 fn test_main() {
-    main(1, 2);
+    main(1, [3, 3, 3], [2, 2, 2], [3, 3, 3], 0x132087f636e0e40cfeaa84b07adc71914fb0e162b4214f822aeb18bccce1597c, 0x132087f636e0e40cfeaa84b07adc71914fb0e162b4214f822aeb18bccce1597c);
 
     // Uncomment to make test fail
     // main(1, 1);

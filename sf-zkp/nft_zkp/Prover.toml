@@ -1,2 +1,6 @@
-x = ""
-y = ""
+cek = "1"
+eceks = "3, 3, 3"
+pubKeys = "2, 2, 2"
+merkleLeaves = "3, 3, 3"
+hashInput = "0x132087f636e0e40cfeaa84b07adc71914fb0e162b4214f822aeb18bccce1597c"
+merkleRoot = "0x132087f636e0e40cfeaa84b07adc71914fb0e162b4214f822aeb18bccce1597c"
