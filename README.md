@@ -1,4 +1,4 @@
-# World ID Next.js Template
+# 
 
 This is a template repository for creating a new project using Next.js, TailwindCSS, and the [World ID SDK](https://id.worldcoin.org). This template isn't intended for use cases that require on-chain verification, but rather for use cases that leverage off-chain web backend verification.
 
