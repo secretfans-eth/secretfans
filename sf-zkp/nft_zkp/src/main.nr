@@ -20,8 +20,9 @@ fn encrypt_griff(plains: [Field; 3]) -> pub Field {
 
 
 
-fn main(cek: Field, eceks: [Field; 3], pubKeys: [Field; 3], hashInput: pub Field)
+fn main(cek: Field, eceks: [Field; 3], pubKeys: pub [Field; 3], merkleLeaves: [Field; 3], hashInput: pub Field, merkleRoot: Field)
 {
+    assert(encrypt_griff(merkleLeaves) == merkleRoot );
     let mut thisEceks = [0, 0, 0];
     for i in 0..3
     {
