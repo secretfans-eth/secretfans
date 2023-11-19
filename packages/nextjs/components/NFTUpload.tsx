@@ -75,7 +75,7 @@ export default function NFTUpload() {
     console.log(encryptedContent);
 
     // TODO: publish to IPFS
-    uploadNFT("name", "description", "<image url>", encryptedContent);
+    const ipfsURI = await uploadNFT("name", "description", "<image url>", encryptedContent);
     //TODO test
 
     // Get public keys of the subs of the content creator
