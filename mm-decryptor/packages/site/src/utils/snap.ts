@@ -62,7 +62,7 @@ export const sendHello = async () => {
     method: 'wallet_invokeSnap',
     params: { snapId: defaultSnapOrigin, request: { method: 'getPublicKey' } },
   });
-  console.log("my publick key is: ", response)
+  console.log("my public key is: ", response)
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

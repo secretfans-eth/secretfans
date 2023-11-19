@@ -14,7 +14,7 @@ export default function Carousel({ images }: { images: string[] }) {
 
   return (
     <Box>
-      <Image boxSize="500px" objectFit="cover" src={images[currentImageIndex]} alt={`Slide ${currentImageIndex}`} />
+      <Image boxSize="700px" objectFit="cover" src={images[currentImageIndex]} alt={`Slide ${currentImageIndex}`} />
     </Box>
   );
 }

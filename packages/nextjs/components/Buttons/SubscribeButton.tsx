@@ -8,7 +8,6 @@ import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
 import { Button } from "@chakra-ui/react";
 
 export default function SubscribeButton({smartContract, amountETH, contentCreatorAddr, publicKey}) {
-    console.log("welcome: ", smartContract)
     const writeTxn = useTransactor();
 
 

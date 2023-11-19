@@ -7,22 +7,21 @@ import SubscribeButton from "~~/components/Buttons/SubscribeButton";
 import InstallSnapButton from "~~/components/Buttons/InstallSnapButton";
 import { useRouter } from "next/router";
 import { VStack, HStack, Text, Heading } from "@chakra-ui/react";
-import {parseEther} from "viem"
 
 const PublisherBrowseView: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const nfts = [
     {
-      title: "NFT 1",
-      description: "NFT 1 description",
-      photoUrl: "https://ipfs.io/ipfs/QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE",
+      title: "New song!",
+      description: "Recorder last night :o",
+      photoUrl: "/new-song.jpg",
       fileUrl: "https://ipfs.io/ipfs/QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE",
     },
     {
-      title: "NFT 1",
-      description: "NFT 1 description",
-      photoUrl: "https://ipfs.io/ipfs/QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE",
+      title: "Singing Hallelujah",
+      description: "My favourite song <3",
+      photoUrl: "/hallelujah.jpg",
       fileUrl: "https://ipfs.io/ipfs/QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE",
     },
   ];
@@ -46,7 +45,7 @@ const PublisherBrowseView: NextPage = () => {
                 !deployedContractLoading && contract && (
                   < SubscribeButton
                     smartContract={contract}
-                    amountETH={parseEther("0.1")}
+                    amountETH={BigInt("0x44444444")}
                     contentCreatorAddr="0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97"
                     publicKey={publicKey}
                   />
