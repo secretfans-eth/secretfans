@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Box, Button, Heading, Input, Textarea } from "@chakra-ui/react";
 import { NFTStorage } from "nft.storage";
-import { ethers } from "ethers";
 const EthCrypto = require("eth-crypto");
 
 const fileToArrayBuffer = require("file-to-array-buffer");
 
 export default function NFTUpload() {
-  const [url, setURL] = useState(null);  
+  const [url, setURL] = useState(null);
   // const [nft, setNFT] = useState(null);
   // const [provider, setProvider] = useState(null);
   const [file, setFile] = useState(null);
@@ -29,18 +28,19 @@ export default function NFTUpload() {
   // }, [])
 
   const uploadNFT = async (name, description, image, encryptedContent) => {
-    const nftstorage = new NFTStorage({ token: process.env.REACT_APP_NFT_STORAGE_API_KEY })
+    console.log("token", process.env.REACT_APP_NFT_STORAGE_API_KEY)
+    const nftstorage = new NFTStorage({ token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDcyN0QwMWZFZEM0MWFENURhNDNhNzBGMkI2OUM4NTc4YmM5QUFmYTIiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDM2MDUxMjM4NiwibmFtZSI6InNlY3JldGZhbiJ9.AHsuVUs1PUUiUgqfjqIwzt8inNs1mdgqdVpYFtrSy7Q" })
 
     // Send request to store image
     const { ipnft } = await nftstorage.store({
       name,
       description,
       image,
-      encryptedContent
+      encryptedContent: encryptedContent
     });
 
     // Save the URL
-    const url = `https://${ipnft}.ipfs.dweb.link`
+    const url = `https://${ipnft}.ipfs.dweb.link/?format=dag-json`
     setURL(url)
 
     return url;
@@ -73,9 +73,26 @@ export default function NFTUpload() {
     const blobFile = await fileToArrayBuffer(file);
     const encryptedContent = await crypto.subtle.encrypt({ name: "AES-CBC", iv }, contentEncryptionKey, blobFile);
     console.log(encryptedContent);
+    const exported = await window.crypto.subtle.exportKey("raw", contentEncryptionKey);
+    console.log({ exported });
+    const strcontentEncryptionKey = arrayBufferToBase64(exported);
 
     // TODO: publish to IPFS
-    const ipfsURI = await uploadNFT("name", "description", "<image url>", encryptedContent);
+    const res = await fetch("https://imgs.search.brave.com/LID9amr1_Iya7zHnxnwsyYTU9qyijJ8uPg2JwaPUFCU/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvMTY0/NDI1L3BleGVscy1w/aG90by0xNjQ0MjUu/anBlZz9hdXRvPWNv/bXByZXNzJmNzPXRp/bnlzcmdiJmRwcj0x/Jnc9NTAw");
+
+    // Check if the request was successful
+    if (!res.ok) {
+      throw new Error(`Failed to fetch image. Status: ${res.status}`);
+    }
+
+    // Convert the response to a Blob
+    const imgBlob = await res.blob();
+
+    // Create a Blob from the binary data
+    const imageBlob = new Blob([imgBlob]);
+    const ipfsURI = await uploadNFT("name", "description", imageBlob, arrayBufferToBase64(encryptedContent));
+    console.log({ipfsURI})
+    // const ipfsURI = "https://bafyreibeunpmbrczq2n4iynd63t4bkhhdewmv64bpmnfjmeliu3vzfyavi.ipfs.dweb.link/?format=dag-json"
     //TODO test
 
     // Get public keys of the subs of the content creator
@@ -88,15 +105,8 @@ export default function NFTUpload() {
     ];
     // Encrypt contentEncryptionKey with the pubKeys of the subs
     const encryptedContentEncryptionKeys = [];
-    const exported = await window.crypto.subtle.exportKey("raw", contentEncryptionKey);
-    console.log({ exported });
-    const strcontentEncryptionKey = arrayBufferToBase64(exported); //JSON.stringify(exported, null, " ");
     for (let i = 0; i < subs.length; i++) {
       const publicKeyBytes = EthCrypto.publicKey.compress(subs[i].pubKey.replace("0x", ""));
-      console.log({
-        publicKeyBytes,
-        strcontentEncryptionKey,
-      });
       console.log(strcontentEncryptionKey);
       const encryptedObject = await EthCrypto.encryptWithPublicKey(publicKeyBytes, strcontentEncryptionKey);
       const encryptedKey = await EthCrypto.cipher.stringify(encryptedObject);
@@ -110,6 +120,7 @@ export default function NFTUpload() {
     // Send it to Ethereum, get money, enjoy
 
     // decrypt ===> test the PoC
+    // TODO: GET encryptedKey and IPFS from SC
     const snapId = "local:http://localhost:8080";
     const response = await window.ethereum.request({
       method: "wallet_invokeSnap",
@@ -126,7 +137,24 @@ export default function NFTUpload() {
       true,
       ["encrypt", "decrypt"],
     );
-    const decryptedContent = await crypto.subtle.decrypt({ name: "AES-CBC", iv }, imported, encryptedContent);
+    // Download encrypted content from IPFS
+    // Fetch the image as a binary response
+    const rs = await fetch(ipfsURI);
+    console.log({ rs })
+
+    // Check if the request was successful
+    if (!rs.ok) {
+      throw new Error(`Failed to fetch image. Status: ${rs.status}`);
+    }
+
+    // Convert the response to a Blob
+    const downloadedJson = await rs.json();
+    console.log({ downloadedJson })
+
+    // Create a Blob from the binary data
+
+    const ipfsBlob = new Blob([base64ToArrayBuffer(downloadedJson.encryptedContent)]);
+    const decryptedContent = await crypto.subtle.decrypt({ name: "AES-CBC", iv }, imported, base64ToArrayBuffer(downloadedJson.encryptedContent));
     console.log({ decryptedContent, blobFile });
     // const fr = new FileReader
     // const decryptedFile = fr.readAsArrayBuffer(decryptedContent)
