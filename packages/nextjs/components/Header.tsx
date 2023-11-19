@@ -87,6 +87,7 @@ export const Header = () => {
       </div>
       <div className="navbar-end mr-4" style={{width: "unset"}}>
         <RainbowKitCustomConnectButton />
+        <FaucetButton />
         <div className="dropdown dropdown-end" ref={burgerMenuRef}>
           <label
             tabIndex={0}

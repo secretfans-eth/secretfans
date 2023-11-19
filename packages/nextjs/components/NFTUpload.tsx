@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Button, Heading, Input, Textarea } from "@chakra-ui/react";
 import { NFTStorage } from "nft.storage";
+import { useAccount, useContractRead, useContractWrite } from "wagmi";
+import { useDeployedContractInfo, useNetworkColor } from "~~/hooks/scaffold-eth";
+import { Abi } from "abitype";
+import { formatEther } from "viem";
 const EthCrypto = require("eth-crypto");
 
 const fileToArrayBuffer = require("file-to-array-buffer");
@@ -12,22 +16,14 @@ export default function NFTUpload() {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
-  // const loadBlockchainData = async () => {
-  //   const provider = new ethers.providers.Web3Provider(window.ethereum)
-  //   setProvider(provider)
-
-  //   const network = await provider.getNetwork()
-
-  //   const nft = new ethers.Contract(, NFT, provider)
-  //   setNFT(nft)
-  // }
-
-  // useEffect(() => {
-  //   loadBlockchainData()
-  // }, [])
+  const { address } = useAccount();
+  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo("SecretFans");
+  const [subsPubKeys, setSubsPubKeys] = useState<any>({});
+  const [subs, setSubs] = useState<any>({});
 
   const uploadNFT = async (name, description, image, encryptedContent) => {
+    console.log("PUBLISHER FLOW")
+    console.log("______________")
     console.log("token", process.env.REACT_APP_NFT_STORAGE_API_KEY)
     const nftstorage = new NFTStorage({ token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDcyN0QwMWZFZEM0MWFENURhNDNhNzBGMkI2OUM4NTc4YmM5QUFmYTIiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDM2MDUxMjM4NiwibmFtZSI6InNlY3JldGZhbiJ9.AHsuVUs1PUUiUgqfjqIwzt8inNs1mdgqdVpYFtrSy7Q" })
 
@@ -70,54 +66,59 @@ export default function NFTUpload() {
       true, // extractable
       ["encrypt", "decrypt"], // can encrypt and decrypt
     );
+    console.log("GENERATED RANDOM contentEncryptonKey: ", contentEncryptionKey)
+
     const blobFile = await fileToArrayBuffer(file);
     const encryptedContent = await crypto.subtle.encrypt({ name: "AES-CBC", iv }, contentEncryptionKey, blobFile);
-    console.log(encryptedContent);
+    console.log("encrypted file: ", file);
+    console.log("decrypted content: ", arrayBufferToBase64(blobFile));
+    console.log("encrypted content: ", encryptedContent);
+
+
     const exported = await window.crypto.subtle.exportKey("raw", contentEncryptionKey);
     console.log({ exported });
-    const strcontentEncryptionKey = arrayBufferToBase64(exported);
+    const exportedContentEncryptionKey = arrayBufferToBase64(exported);
+    console.log("Encryption key exported: ", exported)
+    console.log(exportedContentEncryptionKey)
 
-    // TODO: publish to IPFS
+    // Get image for NFT frontpage
     const res = await fetch("https://imgs.search.brave.com/LID9amr1_Iya7zHnxnwsyYTU9qyijJ8uPg2JwaPUFCU/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvMTY0/NDI1L3BleGVscy1w/aG90by0xNjQ0MjUu/anBlZz9hdXRvPWNv/bXByZXNzJmNzPXRp/bnlzcmdiJmRwcj0x/Jnc9NTAw");
-
-    // Check if the request was successful
     if (!res.ok) {
       throw new Error(`Failed to fetch image. Status: ${res.status}`);
     }
-
-    // Convert the response to a Blob
     const imgBlob = await res.blob();
-
-    // Create a Blob from the binary data
     const imageBlob = new Blob([imgBlob]);
     const ipfsURI = await uploadNFT("name", "description", imageBlob, arrayBufferToBase64(encryptedContent));
-    console.log({ipfsURI})
-    // const ipfsURI = "https://bafyreibeunpmbrczq2n4iynd63t4bkhhdewmv64bpmnfjmeliu3vzfyavi.ipfs.dweb.link/?format=dag-json"
-    //TODO test
+    console.log("Uploaded NFT to IPFS: ", ipfsURI)
 
     // Get public keys of the subs of the content creator
-    const subs = [
+    console.log({subs, subsPubKeys})
+    const subs1 = [
       {
         addr: "0xF00B47",
         pubKey:
           "044a801e476131320ae8a85946ec3a9175ace3280d4586f0e183c64494f825a4faf7191d6f3d7a3c7c76f3e502c4e4a56824e9a3304f9f321212acc14af6c69d0f",
       },
     ];
+    console.log("Encrypting contentEncryptionKey to public key:", subs1[0].pubKey)
     // Encrypt contentEncryptionKey with the pubKeys of the subs
     const encryptedContentEncryptionKeys = [];
-    for (let i = 0; i < subs.length; i++) {
-      const publicKeyBytes = EthCrypto.publicKey.compress(subs[i].pubKey.replace("0x", ""));
-      console.log(strcontentEncryptionKey);
-      const encryptedObject = await EthCrypto.encryptWithPublicKey(publicKeyBytes, strcontentEncryptionKey);
+    for (let i = 0; i < subs1.length; i++) {
+      const publicKeyBytes = EthCrypto.publicKey.compress(subs1[i].pubKey.replace("0x", ""));
+      const encryptedObject = await EthCrypto.encryptWithPublicKey(publicKeyBytes, exportedContentEncryptionKey);
       const encryptedKey = await EthCrypto.cipher.stringify(encryptedObject);
       encryptedContentEncryptionKeys.push({
         encryptedKey: encryptedKey,
-        address: subs[i].addr,
+        address: subs1[i].addr,
       });
+      console.log("Encrypted the exportedContentEncryptionKey. Before encrypt: ", exportedContentEncryptionKey)
+      console.log("After encrypt: ", encryptedKey)
     }
-    console.log(encryptedContentEncryptionKeys);
+
 
     // Send it to Ethereum, get money, enjoy
+    console.log("SUNSCRIBER FLOW")
+    console.log("______________")
 
     // decrypt ===> test the PoC
     // TODO: GET encryptedKey and IPFS from SC
@@ -129,7 +130,9 @@ export default function NFTUpload() {
         request: { method: "decrypt", params: { encryptedString: encryptedContentEncryptionKeys[0].encryptedKey } },
       },
     });
-    console.log(response);
+    console.log("decrypting the encrypted decryption key, using metamask snap, and the subscriber private key")
+    console.log("before decryption: ", encryptedContentEncryptionKeys[0].encryptedKey)
+    console.log("after decryption: ", response)
     const imported = await window.crypto.subtle.importKey(
       "raw",
       base64ToArrayBuffer(response),
@@ -137,32 +140,28 @@ export default function NFTUpload() {
       true,
       ["encrypt", "decrypt"],
     );
+    console.log("imported decrypted key (needed to decrypt the content): ", imported)
     // Download encrypted content from IPFS
     // Fetch the image as a binary response
     const rs = await fetch(ipfsURI);
     console.log({ rs })
-
-    // Check if the request was successful
     if (!rs.ok) {
       throw new Error(`Failed to fetch image. Status: ${rs.status}`);
     }
 
     // Convert the response to a Blob
     const downloadedJson = await rs.json();
-    console.log({ downloadedJson })
+    console.log("downloaded from IPFS: ", downloadedJson)
 
     // Create a Blob from the binary data
 
-    const ipfsBlob = new Blob([base64ToArrayBuffer(downloadedJson.encryptedContent)]);
     const decryptedContent = await crypto.subtle.decrypt({ name: "AES-CBC", iv }, imported, base64ToArrayBuffer(downloadedJson.encryptedContent));
     console.log({ decryptedContent, blobFile });
-    // const fr = new FileReader
-    // const decryptedFile = fr.readAsArrayBuffer(decryptedContent)
-    // console.log(decryptedFile)
     const uint8Array = new Uint8Array(decryptedContent);
-
-    // Create a Blob from the Uint8Array
     const blob = new Blob([uint8Array]);
+    console.log("decrypting encrypted content from IPFS")
+    console.log("before decryption: ", downloadedJson.encryptedContent)
+    console.log("after decryption: ", decryptedContent)
 
     // Create a File from the Blob
     const decryptedFile = new File([blob], "filename.txt", { type: "application/octet-stream" });

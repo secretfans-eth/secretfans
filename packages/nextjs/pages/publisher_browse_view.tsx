@@ -7,6 +7,7 @@ import SubscribeButton from "~~/components/Buttons/SubscribeButton";
 import InstallSnapButton from "~~/components/Buttons/InstallSnapButton";
 import { useRouter } from "next/router";
 import { VStack, HStack, Text, Heading } from "@chakra-ui/react";
+import {parseEther} from "viem"
 
 const PublisherBrowseView: NextPage = () => {
   const router = useRouter();
@@ -45,7 +46,7 @@ const PublisherBrowseView: NextPage = () => {
                 !deployedContractLoading && contract && (
                   < SubscribeButton
                     smartContract={contract}
-                    amountETH={BigInt("0x44444444")}
+                    amountETH={parseEther("0.1")}
                     contentCreatorAddr="0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97"
                     publicKey={publicKey}
                   />
