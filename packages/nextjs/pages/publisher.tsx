@@ -11,7 +11,7 @@ const PublisherDashboard: NextPage = () => {
 
   const { address } = useAccount();
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo("SecretFans");
-  const [tournamentInfo, setTournamentInfo] = useState<any>({});
+  const [publisherInfo, setpublisherInfo] = useState<any>({});
 
   const { isFetching, refetch: refetchChannels } = useContractRead({
     address: deployedContractData?.address,
@@ -21,25 +21,25 @@ const PublisherDashboard: NextPage = () => {
     args: [address],
     onSuccess: (data: any) => {
       console.log("!!!!!!",data);
-      const tournament = {
+      const publisher = {
         nsub: data[0],
         minsubfee: data[1],
         totalETH: data[2],
         totalShares: data[3],
       };
       console.log("asaber torunamentbox, read"); // TODO no està loggegan aixo
-      setTournamentInfo(tournament);
+      setpublisherInfo(publisher);
     },
   });
   refetchChannels()
 
-  console.log("??????????",tournamentInfo.nsub)
+  console.log("??????????",publisherInfo.nsub)
   const publisherProps = {
-    subscribers: Number(tournamentInfo.nsub),
-    totalValueLocked:formatEther((tournamentInfo.totalETH)),
-    totalShares: formatEther(tournamentInfo.totalShares),
-    pricePerShare: Number(tournamentInfo.totalETH)/Number(tournamentInfo.totalShares),
-    minPriceToSubscribe: formatEther(tournamentInfo.minsubfee),
+    subscribers: Number(publisherInfo.nsub),
+    totalValueLocked:formatEther((publisherInfo.totalETH)),
+    totalShares: formatEther(publisherInfo.totalShares),
+    pricePerShare: Number(publisherInfo.totalETH)/Number(publisherInfo.totalShares),
+    minPriceToSubscribe: formatEther(publisherInfo.minsubfee),
     nfts: ["nft1", "nft2"],
   };
 

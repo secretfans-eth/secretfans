@@ -1,22 +1,9 @@
 //SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-// Useful for debugging. Remove when deploying to a live network.
-import "hardhat/console.sol";
-
-// Use openzeppelin to inherit battle-tested implementations (ERC20, ERC721, etc)
-// import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol"; // ? NO ?
-import "@openzeppelin/contracts/utils/Strings.sol";
 
-// ! import safe math
 
-/**
- * A smart contract that allows changing a state variable of the contract and tracking the changes
- * It also allows the owner to withdraw the Ether in the contract
- * @author BuidlGuidl
- */
 contract SecretFans is ERC1155("") {
 	uint256 public constant _TIMELOCK = 1 days; // ? 1 day ?
 	uint256 public constant defaultMinSubFee = 0.01 ether;
@@ -49,6 +36,7 @@ contract SecretFans is ERC1155("") {
 	mapping(uint256 => NftRegister) NftRegistry;
 	mapping(address => ContentCreatorChannel) public Channels;
 	mapping(address => mapping(address => subscription)) public subscribers; // subAdd to CCAdd with sub info(shares,pubKey)
+	mapping(address => uint256[]) nftHolded;
 
 	mapping(address => uint256) public timelock;
 
@@ -82,7 +70,7 @@ contract SecretFans is ERC1155("") {
 			"You are already subscribed to this channel"
 		);
 		ContentCreatorChannel storage channel = Channels[contentCreator];
-		channel.minSubFee=defaultMinSubFee;
+		channel.minSubFee = defaultMinSubFee;
 		require(channel.nSubs < maxSubs, ""); //TODO
 		require(
 			msg.value > channel.minSubFee,
@@ -241,6 +229,7 @@ contract SecretFans is ERC1155("") {
 			"You are not subscribed!"
 		);
 		_mint(msg.sender, tokenId, 1, "");
+		nftHolded[msg.sender].push(tokenId);
 	}
 
 	/**
@@ -267,6 +256,19 @@ contract SecretFans is ERC1155("") {
 		}
 
 		return pubKeys;
+	}
+
+	function holdedNFTs(
+		address nftHolder
+	) public view returns (string[] memory) {
+		string[] memory uris = new string[](nftHolded[nftHolder].length);
+
+		for (uint256 i = 0; i < nftHolded[nftHolder].length; i++) {
+			uint256 tokenId = nftHolded[nftHolder][i];
+			uris[i] = uri(tokenId);
+		}
+
+		return uris;
 	}
 
 	function getCCSubscriptors(

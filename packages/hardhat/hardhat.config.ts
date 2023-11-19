@@ -11,7 +11,7 @@ import "@matterlabs/hardhat-zksync-verify";
 const providerApiKey = process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 // If not set, it uses the hardhat account 0 private key.
 const deployerPrivateKey =
-  process.env.DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+  process.env.DEPLOYER_PRIVATE_KEY ?? "0x650c61495ccb68a341727979d780dc36e2988385b191749eaa9654aee07e11c6";
 // If not set, it uses ours Etherscan default API key.
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW";
 
@@ -122,10 +122,14 @@ const config: HardhatUserConfig = {
       url: "https://rpc.scroll.io",
       accounts: [deployerPrivateKey],
     },
+    linea_testnet: {
+      url: `https://linea-goerli.infura.io/v3/21e52bf43e204415a29c4e07265d77c7`,
+      accounts: [deployerPrivateKey],
+    },
   },
   verify: {
     etherscan: {
-      apiKey: `${etherscanApiKey}`,
+      apiKey: `5QSJEDKCR9XX65DUFEMA83TK9ZRY7GRSBK`,
     },
   },
 };

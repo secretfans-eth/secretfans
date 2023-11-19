@@ -11,28 +11,25 @@ const Home: NextPage = () => {
 
   const { address } = useAccount();
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo("SecretFans");
-  const [tournamentInfo, setTournamentInfo] = useState<any>({});
+  const [subscriberInfo, setsubscriberInfo] = useState<any>({});
+  const [uriInfo, seturiInfo] = useState<any>({});
 
-  const { isFetching, refetch: refetchChannels } = useContractRead({
+  const { isFetching, refetch: refetchUris } = useContractRead({
     address: deployedContractData?.address,
-    functionName: "Channels",
+    functionName: "holdedNFTs",
     abi: deployedContractData?.abi as Abi,
     enabled: false,
     args: [address],
     onSuccess: (data: any) => {
       console.log("!!!!!!",data);
-      const tournament = {
-        nsub: data[0],
-        minsubfee: data[1],
-        totalETH: data[2],
-        totalShares: data[3],
+      const subscriber = {data
       };
       console.log("asaber torunamentbox, read"); // TODO no està loggegan aixo
-      setTournamentInfo(tournament);
+      setsubscriberInfo(subscriber);
     },
   });
-  refetchChannels()
-  
+  refetchUris()
+
   const nfts = [
     {
       title: "NFT 1",
